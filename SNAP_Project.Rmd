@@ -1,0 +1,335 @@
+---
+title: "Final Project MST 369"
+author: "Morgan Briggs"
+date: "November 27, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Section 1: Abstract and Executive Summary
+
+"Food Environment Atlas." USDA ERS - Food Environment Atlas, 2018, www.ers.usda.gov/data-products/food-environment-atlas/data-access-and-documentation-downloads/
+
+The purpose of this data analysis was to find a model that resulted in the lowest test MSE, while simultaneously informing the reader about what factors have the most importance in determining the percentage of the population that participates in the SNAP benefit program. This data set consists of Demographic, Socioeconomic and local data taken from counties by the United States Department of Agriculture. Variables such as the Percentage of population that identifies as Hispanic, the Percentage of population that identifies as White, the Percentage of population 65 or older, and the child poverty rate per county are examples of the predictor variables included in this data set.The response variable is the percentage of the population that participates in the SNAP benefit program. There are a total of 3,143 observations and 13 numeric predictor variables. In the initial stages of the modeling process, I removed 6 variables and conducted a CART imputation technique to remove missing values over 5 iterations. I began a tree building process, starting with a single tree, followed by bagged trees and finally a random forest. The random forest resulted in the lowest  test MSE of 5.35 and the most variability explained, around 47.6%. In addition, many of the variables that were important in the bagged model also showed importance in the random forest. PCT_NHBLACK10, percentage of the population that identifies as Black, CHILDPOVRATE15, Child Poverty Rate, PCT_HISP10, percentage of the population that identifies as Hispanic, and REDEMP_SNAPS16, number of SNAP dollars per store per county were the four most important variables found in the random forest. In addition, after analyzing partial dependence plots, I concluded that changes in child poverty rates greatly affect the response variable, the percentage of SNAP participants per county. The impact from Percentage of Residents that Identify as Black are not as apparent as the child poverty rate, but there is still a slight increase in the percentage of SNAP program participants as the percentage increases. The impact from Percentage of Residents that are 65 or older are very drastic. There is a very steep decrease in the response variable as the percentage of the county population that is 65 or older increases. This reinforces the notion of importance of these variables in the model. This analysis was illuminating in terms of some of the factors that are related to a higher percentage of residents who participate in SNAP program. Larger percentages of residents who identify as Black and Hispanic, along with higher child poverty rates have a significant impact on the percentage of residents involved in the SNAP program. 
+
+
+
+## Section 2: Motivation and Background
+
+
+The data set I chose is related closely to the issue of food disparity in the United States. This topic is important for many reasons. Understanding and solving the issue of food disparity is a matter of life or death for a significant amount of citizens in our nation. In summer of 2018, the United States Federal Government ended its contract with Novo Dia. The implications of the closing of this deal created many challenges for individuals who face food insecurity, because they were no longer able to use food stamps at farmers markets. Farmers markets served as a lower priced option for fresh produce, especially when compared to large grocery chains. Additionally, farmers markets were located at central locations that many of these community members could gain access to without the need of a car for transportation. By discovering which factors influence SNAP redemptions, one could make a claim for counties or specific groups of people that are in great need of SNAP redemptions. Also, since farmers markets are some of the primary locations in which SNAP redemptions are used, this could negatively affect the SNAP program's success. Some of the major challenges related to the analysis of this issue are that data is not constantly being collected on this issue and there is a large presence of multicollinearity among certain variables. Also, demographic and socioeconomic data is notoriously hard to collect because it is conducted primarily through government surveys. This could mean the results are incomplete or inaccurate. 
+
+The Economic Research Service under the branch of the USDA recently published an article entitled "Eligibility Requirements for SNAP Retailers: Balancing Access, Nutrition, and Integrity." This article outlines how retailers can become an authorized SNAP food store. There are "stricter standards regarding the variety and types of foods offered can enhance the nutritional content of foods in qualifying stores and improve program integrity" (Oliviera, et. al). The Food Stamp Act of 1964 requires consumers to operate within the commercial retail food distribution system. "The U.S. retail food system also provides recipients with access to a wide variety of nutritious foods" (Oliviera, et. al). By 2016, the number of SNAP authorized food retailers grew by 79 percent. Unfortunately, in addition to the removal of various government contracts with SNAP vendors, there is a constant increase in the standards placed on retailers who provide SNAP benefits. Retailers must stock specific products and carry specific volumes of certain types of products, which makes it very difficult for smaller retailers to participate in the SNAP program. It is important to understand the factors that determine whether or not an individual qualifies for SNAP, because by understanding how widespread the need for SNAP dollars are changes could be made to the legislation to allow retailers and residents to participate in the program with greater ease.
+
+In "A Closer Look at Who Benefits from SNAP: State-by-State Fact Sheets" it is noted that "SNAP reached 42 million people nationwide in 2017 alone" (Nchako and Cai). I specifically looked into North Carolina to analyze some of the demographic statistics for individuals who benefit from the SNAP program.In North Carolina, "more than 70% of SNAP participants are families with children, and almost 28% are in families with members who are elderly or have disabilities" (1). In North Carolina, the average SNAP benefit amount was $131. As the nation's largest anti-hunger program, it is important to understand those who benefit from SNAP benefits, especially when previous methods to redeem SNAP dollars, such as those at farmers markets, are removed due to governmental decisions. This data is usually tracked by the Center on Budget and Policy Priorities and the USDA. There is not a significant amount of statistical analysis conducted on this issue, which is why I would like to continue researching and conducting analysis on this topic.
+
+
+
+Oliviera, Victor, et. al. "Eligibility Requirements for SNAP Retailers: Balancing Access, Nutrition, and Integrity." USDA ERS - Food Environment Atlas, Jan. 2018, www.ers.usda.gov/amber-waves/2018/januaryfebruary/eligibility-requirements-for-snap-retailers-balancing-access-nutrition-and-integrity/.
+
+
+Nchako, Catlin, and Lexin Cai. "A Closer Look at Who Benefits from SNAP: State-by-State Fact Sheets." Center on Budget and Policy Priorities, 15 Mar. 2018, www.cbpp.org/research/a-closer-look-at-who-benefits-from-snap-state-by-state-fact-sheets.
+
+
+##  Section 3: Exploratory Data Analysis
+
+The response variable in this data set, PCT_SNAP16, is the percentage of each county population that participates in the SNAP benefit program. 
+
+There are a total of 3,143 observations and 13 numeric predictor variables.
+
+The first three predictor variables involve farmers markets and the SNAP program: FMRKT16 is the Number of Farmers' markets in 2016, and PCT_FMRKT_SNAP16 is the percentage of 2016	Farmers' markets that report accepting SNAP, and REDEMP_SNAPS16 is the average SNAP dollar value per store per county in 2016.
+
+The next six predictor variables are racial demographic variables. PCT_NH10 is the percentage of the 2010 county population that is White, PCT_NHBLACK10: is the percentage of the 2010 county population that is Black, PCT_HISP10 is the percentage of the 2010 county population that is Hispanic, PCT_NHASIAN10 is the percentage of the 2010 county population that is Asian, PCT_NHNA10 is the percentage of the 2010 county population that is American Indian or Alaska Native, and PCT_NHPI10 is the percentage of the 2010 county population that is Hawaiian or Pacific Islander.
+
+The final four variables are other demographic variables, primarily measuring age, poverty and income levels. PCT_65OLDER10 is the percentage of 2010 county population 65 and older, PCT_18YOUNGER10 is the percentage of 2010 county population that is 18 and younger, CHILDPOVRATE15 is the child poverty rate per county in 2015, and MEDHHINC15 is the median household income per county in 2015.
+
+I removed 6 variables, because they did not affect the response variable in a way that provided insight. Among these variables were the FIPS ID code which is a unique code per county, population estimate which has already been factored into the PCT_SNAP16 variable, and State and County. Since my model is focused on national trends, state and county were not necessary to include in my model. I also removed PCT_SNAPBEN10 which is a variable which defines SNAP benefits in terms of per capita. This is very dependent on GDP levels per county which are not provided in this data set.
+
+I also conducted a CART, Classification and Regression Tree imputation technique to remove missing values over 5 iterations. I used random forests with 100 trees for this imputation. There is missing data throughout the data set, especially because it was collected primarily through survey research. The random forest CART technique is an iterative process, that moves through the variables, imputing the first missing variable first. As each variable is completed it is used to impute the next variable until the entire data set is completed.
+
+After cleaning the data, I began to plot my data to see if there were any relationships between the numeric predictor variables and the response variable, PCT_SNAP16, which is the percentage of each county population that participates in the SNAP benefits program. As seen in a few of the plots below, there is no clear linear relationship between any of the predictor variables and the response variable. In addition, transformations, such as log, square root and polynomial transformations make no significant difference in the relationship with the response variable. 
+
+I ran a linear regression model to see the output table that is shown below; however, because many of the variables are non-linear, I have decided to proceed with trees in order to determine which variables are important to determining the percentage of residents that participate in the SNAP program. 
+
+
+
+```{r, include=FALSE}
+library(missForest)
+
+
+```
+
+
+
+```{r}
+set.seed(371)
+
+final_new <- missForest(Project_new[,-c(1,2,3,5,6,8)], variablewise= TRUE, ntree=100)
+
+```
+
+
+```{r}
+final_new<-final_new$ximp
+
+```
+
+#Plots 
+
+
+
+```{r, echo=FALSE}
+
+
+op <-par(mfrow=c(2,2))
+
+
+plot(PCT_SNAP16~ log(MEDHHINC15), data=final_new, ylab= "SNAP Participants", xlab= "Median Household Income")
+
+plot(PCT_SNAP16~ sqrt(PCT_NHWHITE10), data=final_new, ylab= "SNAP Participants", xlab= "% of White Residents per County")
+plot(PCT_SNAP16~ sqrt(PCT_NHBLACK10), data=final_new, ylab= "SNAP Participants", xlab= "% of Black Residents per County")
+plot(PCT_SNAP16~ PCT_HISP10, data=final_new, ylab= "SNAP Participants", xlab= "% of Hispanic Residents per County")
+plot(PCT_SNAP16~ PCT_NHASIAN10, data=final_new, ylab= "SNAP Participants", xlab= "% of Asian Residents per County")
+plot(PCT_SNAP16~ sqrt(PCT_NHNA10), data=final_new, ylab= "SNAP Participants", xlab= "% of American India/Alaskan Native Residents per County")
+plot(PCT_SNAP16~ PCT_NHPI10, data=final_new, ylab= "SNAP Participants", xlab= "% of Hawaiian/Pacific Islander Residents per County")
+plot(PCT_SNAP16~ PCT_65OLDER10, data=final_new, ylab= "SNAP Participants" , xlab= "% of Residents above age 65 per County")
+#plot(PCT_SNAP16~ PCT_18YOUNGER10, data=final_new, ylab= "SNAP Participants" , xlab= "Percentage of Residents 18 and Younger per County")
+
+
+
+
+#plot(PCT_SNAP16 ~ FMRKT_SNAP16, data=final_new, ylab= "SNAP Participants", xlab= "Number of Farmers Market per County")
+
+par(op)
+```
+
+
+
+
+
+
+
+
+
+```{r, echo=FALSE}
+model1 <- lm(PCT_SNAP16 ~ ., data=final_new)
+summary(model1)
+```
+
+
+
+
+## Section 4: Methods 
+
+
+
+```{r, include=FALSE}
+library(rpart)
+library(rattle)
+```
+
+I began my modeling process with trees, which does not require EDA or a multicollinearity check, making it a very appealing process for non-linear relationships. In addition, trees are very beneficial for data sets that show correlation among variables. Trees are created through clustering by finding relationships and making predictions. Clusters are created by grouping together data points that have similar values of the response variable. Trees consider every possible way we can split data into two regions in order to minimize the RSS. I began by modeling a single tree, using PCT_SNAP16 as my response variable. This is a regression tree, because the response variable is numeric. I controlled for the CP, at .005 to see all of the various possibilities that are generated based on the number of splits in the tree. The single tree is a form of clustering based on similarities found in the data set. The data is split until the tree reaches terminal nodes which are found at the bottom of the tree. I determined that 13 splits resulted in the lowest test MSE. 
+
+
+
+
+```{r}
+set.seed(162)
+tree.Snap <- rpart(PCT_SNAP16 ~. , method= "anova", data= final_new, control=rpart.control(cp=0.005))
+
+
+printcp(tree.Snap)
+```
+
+
+The root node error is 10.212. When this value is multiplied by the xerror of .70339, the resultant test MSE is 7.18301. Throughout the modeling process, I will try to decrease this test MSE through the use of bagged trees and random forests. 
+
+```{r,echo=FALSE}
+#fancyRpartPlot(tree.Snap)
+```
+
+```{r}
+tree.Snap$cptable[which.min(
+tree.Snap$cptable[,"xerror"]),"CP"]
+```
+
+I pruned the tree based on the CP that resulted in the smallest xerror. This value was .005446771.
+
+```{r}
+set.seed(162)
+tree.Snap1 <- prune(tree.Snap, cp=  0.005446771)
+```
+
+
+
+The pruned tree can be seen below. There are a total of 13 splits and 14 terminal nodes. As seen in the tree below, the root node is child poverty rate. Various interpretations can be made from this single tree. For example, if the child poverty rate is greater than 20% and the percentage of the population that identifies as Black is greater than 14%, the percentage of the population that is greater than 22% and the percentage of the population that identifies as Hispanic is greater than 4.4%, this will result in a greater percentage of participants who participate in the SNAP benefits program per county. This tree pattern results in higher percentages of SNAP participants when compared to a county that has a child poverty rate less than 20%, a population in which less than .77% of the residents identify as Black, and a total SNAP dollar per store value of less than $100,000. From this, we can gather that child poverty rate and percentage of the population that identify as Black in each county are important variables to consider. 
+
+```{r}
+fancyRpartPlot(tree.Snap1)
+```
+
+Below I calculated the MSE using the original model and the linear model.
+
+
+```{r, echo=FALSE}
+set.seed(162)
+n <- nrow(final_new)
+train <- sample( 1:n, .6*n)
+test <- c(1:n)[-train]
+```
+
+MSE with original model 
+
+```{r, echo=FALSE}
+n<-nrow(final_new)
+mse_here <- rep(0,n)
+for(i in 1:n){
+tree.snap <- rpart(PCT_SNAP16 ~ . , method= "anova", data=final_new[-i,])
+yhat <- predict(tree.snap, newdata = final_new[i,])
+mse_here[i] <- (final_new$PCT_SNAP16[i] - yhat)^2
+}
+mean(mse_here)
+```
+
+
+MSE with linear model
+
+```{r, echo=FALSE}
+n<-nrow(final_new)
+mse_here <- rep(0,n)
+
+for(i in 1:n){
+lm.Snap <- lm(PCT_SNAP16 ~ ., data=final_new[-i,])
+yhat <- predict(lm.Snap, newdata = final_new[i,])
+mse_here[i] <- (final_new$PCT_SNAP16[i] - yhat)^2
+}
+mean(mse_here)
+```
+
+
+
+
+```{r, echo=FALSE}
+library(randomForest)
+```
+
+
+## Bagging
+
+The next process I attempted to lower the test MSE was bagging. In the bagging process a bootstrapping sample number is chosen, then the sample is split into groups of the same size. We create a bootstrap sample from the training sample. Then, we fit a tree for each sample, so that we have B trees. Once we have B trees, we can find the average resultant predictions from each tree to obtain the model we will actually use for prediction. The bagging model I created used 1000 trees. Bagging creates a much more robust model than the single tree, but it is unfortunately more difficult to interpret.
+
+
+
+```{r, echo=FALSE}
+set.seed(162)
+bag.Snap<- randomForest(PCT_SNAP16~., 
+               data = final_new, mtry = 13, 
+               importance = TRUE, 
+               ntree = 1000)
+```
+
+
+```{r}
+bag.Snap
+```
+
+The results from the bagged tree can be observed above. The test MSE is 5.39 and the percent of variability explained by the bagged model is 47.2%. I ran this model with 1000 trees to model 13 variables.
+
+```{r}
+varImpPlot(bag.Snap)
+```
+
+From the importance plot, we can see that four of the most important variables are CHILDPOVRATE15, Child Poverty Rate, PCT_NHBLACK10, percentage of the population that identifies as Black, PCT_65OLDER10, percentage of population that is 65 or older, and PCT_HISP10, percentage of the population that identifies as Hispanic.
+
+```{r, echo=FALSE}
+
+
+op <-par(mfrow=c(2,2))
+
+partialPlot(bag.Snap, final_new, x.var = "CHILDPOVRATE15")
+partialPlot(bag.Snap, final_new, x.var = "PCT_NHBLACK10")
+
+par(op)
+
+```
+
+
+As show in the partial dependence plots above of Child Poverty Rate and Percentage of the Population that Identifies as Black, we can see the marginal effects of each of the predictor variables on the response variable, using the bagged tree model as our basis. We can tell that changes in child poverty rates greatly affect the response variable, the percentage of SNAP participants per county. The impact from Percentage of Residents that Identify as Black are not as apparent as the child poverty rate, but there is still a slight increase in the percentage of SNAP program participants as the percentage increases.
+
+
+## Random Forest
+
+After creating the bagged model, I moved onto random forests, once again to lower the test MSE even further. Bagging relies on bootstrapping samples from a training set, which results in high correlation between trees. Random forests avoids this by choosing random subsamples of the predictors. After the bootstrap samples are taken, I used 1000 in my analysis, a random subsample is selected from the predictors. Then, the tree is split using only the random subsample taken from the predictor variables. After this, a new random sample of the predictors is taken and the data is split off of the sample just chosen. The resultant random forest is much less correlated than the bagged trees because random subsamples were used. Random forests allow each predictor the possibility to be used in the split, so there is wide variation in the resultant trees, lowering the correlation. 
+
+
+```{r}
+set.seed(162)
+forest.Snap<- randomForest(PCT_SNAP16~., 
+               data = final_new, mtry = sqrt(13), 
+               importance = TRUE, 
+               ntree = 1000)
+```
+
+
+```{r}
+forest.Snap
+```
+
+The incentive for random forests stems from the ability to create many non-correlated trees. 
+
+
+The results from the random forest can be observed above. The test MSE is 5.35 and the percent of variability explained by the random forest is 47.6%. I ran this model with 1000 trees to model 13 variables. The random forest resulted in a lower test MSE and a higher percent of variability explained. So, we would prefer this model to the bagged tree model. 
+
+
+```{r}
+varImpPlot(forest.Snap)
+```
+
+From the importance plot, we can see that four of the most important variables are PCT_NHBLACK10, percentage of the population that identifies as Black, CHILDPOVRATE15, Child Poverty Rate, PCT_HISP10, percentage of the population that identifies as Hispanic, and REDEMP_SNAPS16, number of SNAP dollars per store per county. This is almost exactly the same results as the bagged model, expect for PCT_65OLDER10, percentage of the population that is 65 or older. 
+
+
+```{r,echo=FALSE}
+
+op <-par(mfrow=c(2,2))
+
+
+partialPlot(forest.Snap, final_new, x.var = "CHILDPOVRATE15")
+partialPlot(forest.Snap, final_new, x.var = "PCT_65OLDER10")
+
+par(op)
+```
+
+As show in the partial dependence plots above of Child Poverty Rate and Percentage of the County Population that is 65 or older, we can see the marginal effects of each of the predictor variables on the response variable, using the random forest model as our basis. We can tell that changes in child poverty rates greatly affect the response variable, the percentage of SNAP participants per county. The impact from Percentage of Residents that are 65 or older are very drastic. There is a very steep decrease in the response variable as the percentage of the county population that is 65 or older increases. This reinforces the notion of importance of these variables.
+
+## Section 5: Results:
+
+After the initial exploratory data analysis, I proceeded with running various trees, beginning with a single tree. I created a single tree using all of the variables and the response variable, PCT_SNAP16. After this, I pruned the tree using a CP of  0.005446771. This resulted in a tree with 13 splits and 14 terminal nodes.The root node error from the tree was 10.212. When this value is multiplied by the xerror of .70339, the resultant test MSE was 7.18301. From the single pruned tree, it is apparent that child poverty rates and percentage of the population that identifies as Black are two of the most important variables. We can infer that higher child poverty rates, higher percentages of populations that identify as Black and larger populations of residents 18 or younger result in higher percentages of individuals who participate in the SNAP program. 
+
+After running the single tree, I proceeded with a bagged model in hopes to lower the test MSE. The results from the bagged tree are as follows: the test MSE is 5.39 and the percent of variability explained by the bagged model is 47.2%. I ran this model with 1000 trees to model 13 variables. The important variables from this model are CHILDPOVRATE15, Child Poverty Rate, PCT_NHBLACK10, percentage of the population that identifies as Black, PCT_65OLDER10, percentage of population that is 65 or older, and PCT_HISP10, percentage of the population that identifies as Hispanic.
+
+Then, I ran the model with a random forest, using 1000 trees in attempts to lower the test MSE even further. I chose random forests to produce less correlated trees. The results from the random forest can be observed above. The test MSE is 5.35 and the percent of variability explained by the random forest is 47.7%. I ran this model with 1000 trees to model 13 variables. The random forest resulted in a lower test MSE and a higher percent of variability explained. So, we would prefer this model to the bagged tree model. In addition, many of the variables that were important in the bagged model also showed importance in the random forest. PCT_NHBLACK10, percentage of the population that identifies as Black, CHILDPOVRATE15, Child Poverty Rate, PCT_HISP10, percentage of the population that identifies as Hispanic, and REDEMP_SNAPS16, number of SNAP dollars per store per county. PCT_65OLDER10, percentage of the population that is 65 or older and REDEMP_SNAPS16 are listed higher on the variance importance plot than in the bagged model. While there are similarities between the bagged tree results and the random forest, I have decided to proceed with the random forest because it resulted in the lowest Test MSE of 5.35 and the most variability explained, around 47.6%. From the random forest results, I concluded that larger percentages of residents who identify as Black and Hispanic, along with higher child poverty rates have a significant impact on the percentage of residents involved in the SNAP program. The higher these various percentages of these three variables, the higher the percentage rate of SNAP participants. In addition, after analyzing partial dependence plots,I concluded that changes in child poverty rates greatly affect the response variable, the percentage of SNAP participants per county. The impact from Percentage of Residents that Identify as Black are not as apparent as the child poverty rate, but there is still a slight increase in the percentage of SNAP program participants as the percentage increases. The impact from Percentage of Residents that are 65 or older are very drastic. There is a very steep decrease in the response variable as the percentage of the county population that is 65 or older increases. This reinforces the notion of importance of these variables in the model.
+
+
+##Section 6: Conclusions and Future Work
+
+I ultimately decided to use a random forest instead of a single tree and a bagged tree model because the random forest resulted in the lowest test MSE and the highest percentage of variability explained. I used 1000 trees in my random forest with 13 numeric variables. The resultant test MSE was 5.35 with a percentage variability explained of 47.6%. The methodology for the tree growing process can be found in the methods section of this analysis. The variables that were important in the random forest were PCT_NHBLACK10, percentage of the population that identifies as Black, CHILDPOVRATE15, Child Poverty Rate, PCT_HISP10, percentage of the population that identifies as Hispanic, and REDEMP_SNAPS16, number of SNAP dollars per store per county. In addition, Median Household Income is much higher on the importance plot for the random forest than it is in the bagged tree importance plot.
+
+We can tell from both our single tree and the variable importance plots that higher child poverty rates result in higher percentages of SNAP participants per county. The same can be said for higher percentages of the population that identify as Black and Hispanic. 
+
+For example, if the child poverty rate is greater than 20% and the percentage of the population that identifies as Black is greater than 14%, the percentage of the population that is greater than 22% and the percentage of the population that identifies as Hispanic is greater than 4.4%, this will result in a greater percentage of participants who participate in the SNAP benefits program per county. This tree pattern results in higher percentages of SNAP participants when compared to a county that has a child poverty rate less than 20%, a population in which less than .77% of the residents identify as Black, and a total SNAP dollar per store value of less than $100,000. From this, we can gather that child poverty rate and percentage of the population that identify as Black in each county are important variables to consider.
+
+This analysis was illuminating in terms of some of the factors that are related to a higher percentage of residents who participate in SNAP program, such as larger percentages of residents who identify as Black and Hispanic. Variables such as child poverty rate and median household income were semi-intuitive in terms of the fact that higher poverty rates and lower income levels should result in higher levels of SNAP participants; however, this was reinforced by the results of the tree. 
+
+In the future, I would like to study how these demographic and socioeconomic variables that showed importance in terms of the percentage of residents that participate in SNAP benefits affect the number of farmers markets per county. At first, I was surprised that the number of farmers markets did not increase the percentage of residents that participate in the SNAP benefits program, but I believe it provides a way for residents to use their SNAP dollars, serving as an avenue to support the SNAP program, rather than being a root cause for the creation of SNAP benefits. I would like to measure these variables against the number of farmers markets to demonstrate the importance of farmers markets in the maintenance of SNAP programs.
+
+Additionally, I believe this issue as a whole deserves more attention and more data collection in order to make a difference in food policy. Data is primarily collected on agriculture and crop production which is still very important, but the main issues we face as a country and in our world are problems of distribution rather than overall food shortages. By understanding what communities are impacted more significantly because of food insecurity, we can better target food assistance programs. Also, regarding future research on farmers markets, if proven to be related to the various demographic and socioeconomic variables, less barriers to entry for SNAP benefit technology should be implemented. The end of the government contract with Novo Dia has created major barriers for individuals who seek out farmers markets to use SNAP benefits due to the proximity of the markets and the lower prices in general, when compared to chain grocery stores. Also the end of the contract with Novo Dia, when paired with the high standards for retailers to be SNAP certified decreases the availability and opportunity to use SNAP benefits throughout counties. These difficulties only serve to reinforce the widespread food insecurity that we face as a nation. 
+
+
+
+
+
